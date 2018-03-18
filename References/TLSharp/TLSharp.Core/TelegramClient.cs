@@ -25,12 +25,16 @@ namespace TLSharp.Core
         private AuthKey _key;
         private TcpTransport _transport;
         private string _apiHash = "";
-        private int _apiId = 0;
+        private string _appVersion = "";
+        private string _DeviceModel = "";
+        private string _LangCode = "";
+        private string _SystemVersion = "";
+        private int _apiId = 0;        
         private Session _session;
         private List<TLDcOption> dcOptions;
         private TcpClientConnectionHandler _handler;
 
-        public TelegramClient(int apiId, string apiHash, ISessionStore store = null, string sessionUserId = "session", TcpClientConnectionHandler handler = null)
+        public TelegramClient(int apiId, string apiHash, ISessionStore store = null, string sessionUserId = "session", string AppVersion = "1.0", string DeviceModel = "PC", string LangCode = "en", string SystemVersion = "Windows", TcpClientConnectionHandler handler = null)
         {
             try
             {
@@ -45,8 +49,11 @@ namespace TLSharp.Core
                 TLContext.Init();
                 _apiHash = apiHash;
                 _apiId = apiId;
+                _appVersion = AppVersion;
+                _DeviceModel = DeviceModel;
+                _LangCode = LangCode;
+                _SystemVersion = SystemVersion;
                 _handler = handler;
-
                 _session = Session.TryLoadOrCreateNew(store, sessionUserId);
                 _transport = new TcpTransport(_session.ServerAddress, _session.Port, _handler);
             }
@@ -72,11 +79,11 @@ namespace TLSharp.Core
                 var request = new TLRequestInitConnection()
                 {
                     ApiId = _apiId,
-                    AppVersion = ", TLImporter 2.1.1",
-                    DeviceModel = "PC",
-                    LangCode = "en",
+                    AppVersion = _appVersion,
+                    DeviceModel = _DeviceModel,
+                    LangCode = _LangCode,
                     Query = config,
-                    SystemVersion = "Windows"
+                    SystemVersion = _SystemVersion
                 };
                 var invokewithLayer = new TLRequestInvokeWithLayer() { Layer = 66, Query = request };
                 await _sender.Send(invokewithLayer);
